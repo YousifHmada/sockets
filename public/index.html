@@ -4,19 +4,85 @@
 	<title>Home</title>
 </head>
 <body>
-	<p>server is on</p>
+	<ul id="messages"></ul>
+	<form id="message-form">
+		<input id="message-input" type="text" name="message" placeholder="enter your message">
+	</form>
+	<button id="send-location">send-location</button>
+	<script   src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript">
 		var socket = io()
+
 		socket.on('connect',function (){
 			console.log('connected to the server');
+			// socket.emit('newMessage', {
+			// 	from : 'user',
+			// 	text : 'testing user'
+			// }, function(res){
+			// 	console.log('response : ',res);
+			// });
 		})
 		socket.on('disconnect',function (){
 			console.log('disconnected from the server');
 		});
 		socket.on('newMessage', function(newMessage){
-			alert('you have got a notification');
 			console.log('newMessage : ',newMessage);
+			var item = jQuery('<li></li>');
+			var list = jQuery('#messages');
+			item.text(newMessage.from+' : '+newMessage.text);
+			list.append(item);
+		});
+		socket.on('newLocationMessage', function(newMessage){
+			console.log('newMessage : ',newMessage);
+			var item = jQuery('<li></li>');
+			var link = jQuery('<a target="_blank"></a>');
+			var list = jQuery('#messages');
+			link.attr('href',newMessage.url);
+			link.text('see location');
+			item.text(newMessage.from+' : ');
+			item.append(link);
+			list.append(item);
+		});
+		$('#message-input').keypress(function (e) {
+		  if (e.which == 13) {
+		    $('#message-form').submit();
+		  }
+		});
+		jQuery('#message-form').on('submit',function(e){
+			e.preventDefault();
+			var message = jQuery('#message-input').val();
+			jQuery('#message-input').val('');
+			if(message == ""){
+
+			}else{
+				socket.emit('newMessage', {
+					from : 'user',
+					text : 	message
+				}, function(res){
+					console.log('response : ',res);
+				});
+			}
+		});
+		$('#send-location').on('click',function() {
+		    if(!navigator.geolocation){
+		    	console.log('your browser doesn\'t support geolocation');
+		    }else{
+		    	navigator.geolocation.getCurrentPosition(
+		    		function(location){
+		    			socket.emit('newLocationMessage',{
+		    				latitude : location.coords.latitude,
+		    				longitude : location.coords.longitude
+		    			});
+		    		},
+		    		function(){
+		    			console.log('unable to fetch location');	
+		    		}
+		    	);
+		    }
+
 		});
 	</script>
 </body>

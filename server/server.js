@@ -2,7 +2,8 @@ const path = require('path');
 const express = require('express');
 const socketIO = require('socket.io');
 const http = require('http');
-
+var {generateMessage} = require('./utils/message');
+var {generateLocationMessage} = require('./utils/message');
 var app = express();
 
 const port = process.env.PORT || 3000;
@@ -16,27 +17,19 @@ app.use(express.static(publicPath));
 
 io.on('connection',(socket)=>{
 	console.log('new user connected');
-	socket.emit('newMessage',{
-			from:"admin",
-			text:"welcome new user",
-			createdAt:new Date().getTime()
-		});
-	socket.broadcast.emit('newMessage',{
-			from:"admin",
-			to:"new user arrived",
-			createdAt:new Date().getTime()
-		});
-	socket.on('newMessage',(newMessage)=>{
-		// io.emit('newMessage',{
-		// 	from:newMessage.from,
-		// 	to:newMessage.text,
-		// 	createdAt:new Date().getTime()
-		// });
-		socket.broadcast.emit('newMessage',{
-			from:newMessage.from,
-			text:newMessage.text,
-			createdAt:new Date().getTime()
-		});
+	socket.emit('newMessage',generateMessage("admin","welcome new user"));
+	socket.broadcast.emit('newMessage',generateMessage("admin","new user arrived"));
+	socket.on('newMessage',(newMessage, callback)=>{
+		// io.emit('newMessage',generateMessage(newMessage.from,newMessage.text));
+		if(newMessage.from == 'yousif'){
+			callback('permission denied');
+		}else{
+			callback('send successfully');
+		socket.broadcast.emit('newMessage',generateMessage(newMessage.from,newMessage.text));
+		}
+	});
+	socket.on('newLocationMessage',(newMessage)=>{
+		socket.broadcast.emit('newLocationMessage',generateLocationMessage('admin',newMessage.latitude,newMessage.longitude));
 	});
 	socket.on('disconnect',()=>{
 		console.log('user disconnected');
