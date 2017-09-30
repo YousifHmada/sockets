@@ -27,12 +27,15 @@
       <button id="send-location">Send location</button>
     </div>
   </div>
-
+  <script src="/js/moment.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script   src="https://code.jquery.com/jquery-3.2.1.min.js"
 			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 			  crossorigin="anonymous"></script>
   <script>
+    function formattedTime (createdAt){
+    	return moment(createdAt).format('h:mm a');
+    }
   	var socket = io();
 	socket.on('connect', function () {
 	  console.log('Connected to server');
@@ -41,15 +44,17 @@
 	  console.log('Disconnected from server');
 	});
 	socket.on('newMessage', function (message) {
+	  var time = formattedTime(message.createdAt);
 	  console.log('newMessage', message);
 	  var li = jQuery('<li></li>');
-	  li.text(`${message.from}: ${message.text}`);
+	  li.text(`${message.from} ${time}: ${message.text}`);
 	  jQuery('#messages').append(li);
 	});
 	socket.on('newLocationMessage', function (message) {
+	  var time = formattedTime(message.createdAt);
 	  var li = jQuery('<li></li>');
 	  var a = jQuery('<a target="_blank">My current location</a>');
-	  li.text(`${message.from}: `);
+	  li.text(`${message.from} ${time}: `);
 	  a.attr('href', message.url);
 	  li.append(a);
 	  jQuery('#messages').append(li);
