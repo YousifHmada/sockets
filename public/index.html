@@ -79,8 +79,17 @@
 		    		});
 		    	},
 		    	function(){
-		    		locationButton.removeAttr('disabled').text('Send location');
-		    		console.log('unable to fetch location');	
+		    		$.get("https://location.services.mozilla.com/v1/geolocate?key=test", function(data, status){
+				        if(status == 'success'){
+				        	locationButton.removeAttr('disabled').text('Send location');
+				        	socket.emit('newLocationMessage',{
+				    			latitude : data.location.lat,
+				    			longitude : data.location.lng
+				    		});
+				        }else{
+		    				console.log('unable to fetch location');	
+				        }
+				    });
 		    	}
 		    );
 		}
