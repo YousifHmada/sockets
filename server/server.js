@@ -8,7 +8,7 @@ var app = express();
 
 const port = process.env.PORT || 3000;
 
-const publicPath = path.join(__dirname,'../public');
+const publicPath = path.join(__dirname,'/../public');
 
 var server = http.createServer(app);
 var io = socketIO(server);
