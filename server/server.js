@@ -19,7 +19,7 @@ io.on('connection',(socket)=>{
 	console.log('new user connected');
 	socket.emit('newMessage',generateMessage("admin","welcome new user"));
 	// socket.broadcast.emit('newMessage',generateMessage("admin","new user arrived"));
-	io.emit('newMessage',generateMessage("admin","new user arrived"));
+	socket.broadcast.emit('newMessage',generateMessage("admin","new user arrived"));
 	socket.on('newMessage',(newMessage, callback)=>{
 		// io.emit('newMessage',generateMessage(newMessage.from,newMessage.text));
 		if(newMessage.from == 'yousif'){
